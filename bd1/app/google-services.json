@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "635908624620",
+    "project_id": "routeupn",
+    "storage_bucket": "routeupn.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:635908624620:android:132b96d6044124c4e595c9",
+        "android_client_info": {
+          "package_name": "com.example.bd1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFuh1X7nWlE6MLIS9Ti-YWSTBaIoe2mSI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
