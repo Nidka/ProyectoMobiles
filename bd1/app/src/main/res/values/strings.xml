@@ -1,5 +1,45 @@
 <resources>
-    <string name="app_name">Inventario Pro</string>
+    <string name="app_name">UPNGo</string>
+
+    <!-- Splash -->
+    <string name="splash_loading">Inicializando sistemas…</string>
+    <string name="splash_subtitle">Universidad Privada Del Norte</string>
+
+    <!-- Login -->
+    <string name="login_welcome">Bienvenido</string>
+    <string name="login_subtitle">Inicia sesión con tu cuenta UPN</string>
+    <string name="label_email">Correo:</string>
+    <string name="hint_email">n00123456@upn.pe</string>
+    <string name="label_password">Contraseña:</string>
+    <string name="hint_password">Contraseña</string>
+    <string name="forgot_password">¿Olvidaste tu contraseña?</string>
+    <string name="reset_password_title">Restablecer contraseña</string>
+    <string name="reset_password_subtitle">Te enviaremos un enlace para crear una nueva contraseña.</string>
+    <string name="reset_password_email_hint">correo@upn.pe</string>
+    <string name="reset_password_action">Enviar enlace</string>
+    <string name="reset_password_tip">Revisa tu bandeja de entrada y también correo no deseado.</string>
+    <string name="action_login">Iniciar Sesión</string>
+    <string name="action_create_account">Crear cuenta</string>
+
+    <!-- Register -->
+    <string name="register_title">Crear cuenta</string>
+    <string name="register_as">Registrarse Como</string>
+    <string name="tab_student">Estudiante</string>
+    <string name="tab_driver">Conductor</string>
+    <string name="register_community">Únete a la comunidad UPNGo</string>
+    <string name="label_first_name">Nombres</string>
+    <string name="hint_first_name">ej: Jorge</string>
+    <string name="label_last_name">Apellidos</string>
+    <string name="hint_last_name">ej: Valera</string>
+    <string name="label_register_email">Correo</string>
+    <string name="hint_register_email">correo@upn.pe</string>
+    <string name="label_password_confirm">Confirmar contraseña</string>
+    <string name="hint_password_confirm">Confirmar contraseña</string>
+    <string name="action_register">Registrarse</string>
+    <string name="register_terms">Al registrarte aceptas los términos</string>
+    <string name="terms_link">términos</string>
+
+    <!-- Existing strings for other activities -->
     <string name="txt_codigo">Código del producto (sugerido automático)</string>
     <string name="txt_descripcion">Descripción del producto</string>
     <string name="txt_precio">Precio del producto</string>
@@ -20,18 +60,9 @@
     <string name="search_hint">¿Qué producto estás buscando?</string>
     <string name="store_title">Tienda Inventario</string>
     <string name="login_title">Iniciar sesión</string>
-    <string name="login_subtitle">Accede con tu cuenta para administrar tu catálogo.</string>
-    <string name="register_title">Crear cuenta</string>
     <string name="label_name">Nombre completo</string>
-    <string name="label_first_name">Nombres</string>
-    <string name="label_last_name">Apellidos</string>
     <string name="label_country_code">Código</string>
     <string name="label_phone">Teléfono</string>
-    <string name="label_email">Correo electrónico</string>
-    <string name="label_password">Contraseña</string>
-    <string name="label_password_confirm">Confirmar contraseña</string>
-    <string name="action_login">Entrar</string>
-    <string name="action_register">Registrarme</string>
     <string name="go_register">¿No tienes cuenta? Regístrate</string>
     <string name="go_login">¿Ya tienes cuenta? Inicia sesión</string>
     <string name="home_welcome">Bienvenida, %1$s</string>

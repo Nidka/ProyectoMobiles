@@ -4,14 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.text.InputType
 
 class LoginActivity : AppCompatActivity() {
@@ -22,6 +20,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var ivLoginAvatar: ImageView
     private lateinit var tvPreviewName: TextView
     private lateinit var authManager: AuthManager
+    private var isPasswordVisible = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,20 +38,56 @@ class LoginActivity : AppCompatActivity() {
         ivLoginAvatar = findViewById(R.id.iv_login_avatar)
         tvPreviewName = findViewById(R.id.tv_login_preview_name)
 
-        val btnLogin: Button = findViewById(R.id.btn_login)
+        val btnLogin: TextView = findViewById(R.id.btn_login)
         val tvGoRegister: TextView = findViewById(R.id.tv_go_register)
+        val ivTogglePassword: ImageView = findViewById(R.id.iv_toggle_password)
+        val tvForgotPassword: TextView = findViewById(R.id.tv_forgot_password)
 
-        val slideUp = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left)
-        btnLogin.startAnimation(slideUp)
+        // Staggered Entrance Animations for form elements
+        val slideUp1 = AnimationUtils.loadAnimation(this, R.anim.slide_up_fade_in)
+        val slideUp2 = AnimationUtils.loadAnimation(this, R.anim.slide_up_fade_in).apply { startOffset = 100 }
+        val slideUp3 = AnimationUtils.loadAnimation(this, R.anim.slide_up_fade_in).apply { startOffset = 200 }
+        val slideUp4 = AnimationUtils.loadAnimation(this, R.anim.slide_up_fade_in).apply { startOffset = 300 }
+        val slideUp5 = AnimationUtils.loadAnimation(this, R.anim.slide_up_fade_in).apply { startOffset = 400 }
+
+        etEmail.startAnimation(slideUp1)
+        etPassword.startAnimation(slideUp2)
+        tvForgotPassword.startAnimation(slideUp3)
+        btnLogin.startAnimation(slideUp4)
+        tvGoRegister.startAnimation(slideUp5)
+        layoutLoginPreview.startAnimation(slideUp1)
 
         etEmail.addTextChangedListener(SimpleTextWatcher {
             renderLoginPreview(it)
         })
 
+        // Password visibility toggle
+        ivTogglePassword.setOnClickListener {
+            isPasswordVisible = !isPasswordVisible
+            if (isPasswordVisible) {
+                etPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                ivTogglePassword.setImageResource(R.drawable.ic_eye_off)
+            } else {
+                etPassword.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                ivTogglePassword.setImageResource(R.drawable.ic_eye)
+            }
+            etPassword.setSelection(etPassword.text.length)
+        }
+
         btnLogin.setOnClickListener {
-            val email = etEmail.text.toString()
-            val password = etPassword.text.toString()
-            
+            val email = etEmail.text.toString().trim()
+            val password = etPassword.text.toString().trim()
+
+            // Validate fields are not empty
+            if (email.isEmpty()) {
+                Toast.makeText(this, "Ingresa tu correo", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (password.isEmpty()) {
+                Toast.makeText(this, "Ingresa tu contraseña", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             authManager.login(email, password) { result ->
                 Toast.makeText(this, result.message, Toast.LENGTH_SHORT).show()
                 if (result.success) {
@@ -65,51 +100,18 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 
-        val tvForgotPassword: TextView = findViewById(R.id.tv_forgot_password)
         tvForgotPassword.setOnClickListener {
-            showForgotPasswordEmailDialog()
+            openResetPasswordScreen()
         }
     }
 
-    private fun showForgotPasswordEmailDialog() {
-        val input = EditText(this).apply {
-            inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
-            hint = "correo@ejemplo.com"
+    private fun openResetPasswordScreen() {
+        val email = etEmail.text.toString().trim()
+        val intent = Intent(this, ResetPasswordActivity::class.java).apply {
+            putExtra(ResetPasswordActivity.EXTRA_EMAIL, email)
         }
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(50, 40, 50, 10)
-            addView(input)
-        }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Recuperar Contraseña")
-            .setMessage("Ingresa el correo asociado a tu cuenta.")
-            .setView(layout)
-            .setPositiveButton("Siguiente") { dialog, _ ->
-                val email = input.text.toString().trim()
-                if (authManager.getUserPreviewByEmail(email) != null) {
-                    sendResetEmail(email)
-                } else {
-                    Toast.makeText(this, "No se encontró cuenta con este correo.", Toast.LENGTH_SHORT).show()
-                }
-                dialog.dismiss()
-            }
-            .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }
-            .show()
-    }
-
-    private fun sendResetEmail(email: String) {
-        val loadingDialog = MaterialAlertDialogBuilder(this)
-            .setTitle("Enviando correo...")
-            .setMessage("Por favor espera...")
-            .setCancelable(false)
-            .show()
-
-        authManager.resetPassword(email) { result ->
-            loadingDialog.dismiss()
-            Toast.makeText(this, result.message, Toast.LENGTH_LONG).show()
-        }
+        startActivity(intent)
+        overridePendingTransition(R.anim.reset_screen_enter, R.anim.fade_scale_in)
     }
 
 

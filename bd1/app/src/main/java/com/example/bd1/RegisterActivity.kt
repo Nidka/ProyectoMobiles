@@ -2,39 +2,29 @@ package com.example.bd1
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.view.animation.AnimationUtils
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.textfield.TextInputLayout
+import androidx.core.content.ContextCompat
+import android.graphics.Typeface
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import android.text.InputType
-import android.view.Gravity
-import android.widget.LinearLayout
 
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var etFirstName: EditText
     private lateinit var etLastName: EditText
-    private lateinit var etPhone: EditText
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
     private lateinit var etConfirmPassword: EditText
-    private lateinit var actvCountryCode: AutoCompleteTextView
-
-    private lateinit var tilFirstName: TextInputLayout
-    private lateinit var tilLastName: TextInputLayout
-    private lateinit var tilCountryCode: TextInputLayout
-    private lateinit var tilPhone: TextInputLayout
-    private lateinit var tilEmail: TextInputLayout
-    private lateinit var tilPassword: TextInputLayout
-    private lateinit var tilConfirmPassword: TextInputLayout
 
     private lateinit var authManager: AuthManager
+
+    private var selectedRole = "estudiante"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,69 +32,122 @@ class RegisterActivity : AppCompatActivity() {
 
         authManager = AuthManager(this)
 
-        tilFirstName = findViewById(R.id.til_register_first_name)
-        tilLastName = findViewById(R.id.til_register_last_name)
-        tilCountryCode = findViewById(R.id.til_register_country_code)
-        tilPhone = findViewById(R.id.til_register_phone)
-        tilEmail = findViewById(R.id.til_register_email)
-        tilPassword = findViewById(R.id.til_register_password)
-        tilConfirmPassword = findViewById(R.id.til_register_password_confirm)
+        // Back button
+        val ivBack: ImageView = findViewById(R.id.iv_back)
+        ivBack.setOnClickListener { finish() }
 
+        // Tabs
+        val tabStudent: LinearLayout = findViewById(R.id.tab_student)
+        val tabDriver: LinearLayout = findViewById(R.id.tab_driver)
+        val ivTabStudent: ImageView = findViewById(R.id.iv_tab_student)
+        val tvTabStudent: TextView = findViewById(R.id.tv_tab_student)
+        val ivTabDriver: ImageView = findViewById(R.id.iv_tab_driver)
+        val tvTabDriver: TextView = findViewById(R.id.tv_tab_driver)
+
+        val colorActive = ContextCompat.getColor(this, R.color.text_on_yellow)
+        val colorInactive = ContextCompat.getColor(this, R.color.text_heading)
+
+        tabStudent.setOnClickListener {
+            selectedRole = "estudiante"
+            tabStudent.setBackgroundResource(R.drawable.bg_tab_active)
+            tabDriver.setBackgroundResource(R.drawable.bg_tab_inactive)
+            
+            ivTabStudent.setColorFilter(colorActive)
+            tvTabStudent.setTextColor(colorActive)
+            tvTabStudent.setTypeface(tvTabStudent.typeface, Typeface.BOLD)
+
+            ivTabDriver.setColorFilter(colorInactive)
+            tvTabDriver.setTextColor(colorInactive)
+            tvTabDriver.setTypeface(tvTabDriver.typeface, Typeface.NORMAL)
+        }
+
+        tabDriver.setOnClickListener {
+            selectedRole = "conductor"
+            tabDriver.setBackgroundResource(R.drawable.bg_tab_active)
+            tabStudent.setBackgroundResource(R.drawable.bg_tab_inactive)
+
+            ivTabDriver.setColorFilter(colorActive)
+            tvTabDriver.setTextColor(colorActive)
+            tvTabDriver.setTypeface(tvTabDriver.typeface, Typeface.BOLD)
+
+            ivTabStudent.setColorFilter(colorInactive)
+            tvTabStudent.setTextColor(colorInactive)
+            tvTabStudent.setTypeface(tvTabStudent.typeface, Typeface.NORMAL)
+        }
+
+        // Input fields
         etFirstName = findViewById(R.id.et_register_first_name)
         etLastName = findViewById(R.id.et_register_last_name)
-        etPhone = findViewById(R.id.et_register_phone)
         etEmail = findViewById(R.id.et_register_email)
         etPassword = findViewById(R.id.et_register_password)
         etConfirmPassword = findViewById(R.id.et_register_password_confirm)
-        actvCountryCode = findViewById(R.id.actv_register_country_code)
 
-        val countries = resources.getStringArray(R.array.country_codes)
-        actvCountryCode.setAdapter(
-            ArrayAdapter(this, android.R.layout.simple_list_item_1, countries)
-        )
-        actvCountryCode.setText(countries.firstOrNull().orEmpty(), false)
+        val btnRegister: TextView = findViewById(R.id.btn_register)
 
-        val btnRegister: Button = findViewById(R.id.btn_register)
-        val tvGoLogin: TextView = findViewById(R.id.tv_go_login)
+        // Staggered Entrance Animations for form elements
+        val slideUp1 = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.slide_up_fade_in)
+        val slideUp2 = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.slide_up_fade_in).apply { startOffset = 50 }
+        val slideUp3 = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.slide_up_fade_in).apply { startOffset = 100 }
+        val slideUp4 = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.slide_up_fade_in).apply { startOffset = 150 }
+        val slideUp5 = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.slide_up_fade_in).apply { startOffset = 200 }
+        val slideUp6 = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.slide_up_fade_in).apply { startOffset = 250 }
 
-        val fadeIn = AnimationUtils.loadAnimation(this, android.R.anim.fade_in)
-        btnRegister.startAnimation(fadeIn)
+        etFirstName.startAnimation(slideUp1)
+        etLastName.startAnimation(slideUp2)
+        etEmail.startAnimation(slideUp3)
+        etPassword.startAnimation(slideUp4)
+        etConfirmPassword.startAnimation(slideUp5)
+        btnRegister.startAnimation(slideUp6)
 
         btnRegister.setOnClickListener {
             val firstName = etFirstName.text.toString().trim()
             val lastName = etLastName.text.toString().trim()
-            val phone = etPhone.text.toString().trim()
-            val countryCode = actvCountryCode.text.toString().trim()
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString()
             val confirmPassword = etConfirmPassword.text.toString()
 
-            clearErrors()
-
-            if (!validateFields(firstName, lastName, countryCode, phone, email, password, confirmPassword)) {
-                return@setOnClickListener
+            // Basic validation
+            var isValid = true
+            
+            if (firstName.isBlank()) {
+                etFirstName.startAnimation(AnimationUtils.loadAnimation(this@RegisterActivity, R.anim.shake))
+                isValid = false
+            }
+            if (lastName.isBlank()) {
+                etLastName.startAnimation(AnimationUtils.loadAnimation(this@RegisterActivity, R.anim.shake))
+                isValid = false
+            }
+            if (email.isBlank()) {
+                etEmail.startAnimation(AnimationUtils.loadAnimation(this@RegisterActivity, R.anim.shake))
+                isValid = false
+            }
+            if (password.isBlank()) {
+                etPassword.startAnimation(AnimationUtils.loadAnimation(this@RegisterActivity, R.anim.shake))
+                isValid = false
+            }
+            if (confirmPassword.isBlank()) {
+                etConfirmPassword.startAnimation(AnimationUtils.loadAnimation(this@RegisterActivity, R.anim.shake))
+                isValid = false
+            }
+            if (password.isNotEmpty() && confirmPassword.isNotEmpty() && password != confirmPassword) {
+                etPassword.startAnimation(AnimationUtils.loadAnimation(this@RegisterActivity, R.anim.shake))
+                etConfirmPassword.startAnimation(AnimationUtils.loadAnimation(this@RegisterActivity, R.anim.shake))
+                Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show()
+                isValid = false
             }
 
-            if (password != confirmPassword) {
-                tilConfirmPassword.error = "Las contraseñas no coinciden"
-                return@setOnClickListener
-            }
+            if (!isValid) return@setOnClickListener
 
-            val fullPhone = "$countryCode$phone"
             val validation = authManager.validateRegisterData(
                 firstName = firstName,
                 lastName = lastName,
                 email = email,
-                phone = fullPhone,
+                phone = "",
                 password = password
             )
 
             if (!validation.success) {
-                if (validation.message.contains("Teléfono", ignoreCase = true)) {
-                    tilPhone.error = validation.message
-                } else {
-                    Toast.makeText(this, validation.message, Toast.LENGTH_SHORT).show()
-                }
+                Toast.makeText(this, validation.message, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -114,7 +157,7 @@ class RegisterActivity : AppCompatActivity() {
                 .setCancelable(false)
                 .show()
 
-            authManager.register(firstName, lastName, email, fullPhone, password) { result ->
+            authManager.register(firstName, lastName, email, "", password) { result ->
                 loadingDialog.dismiss()
                 if (result.success) {
                     MaterialAlertDialogBuilder(this)
@@ -130,69 +173,6 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
         }
-
-        tvGoLogin.setOnClickListener {
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-        }
-    }
-
-
-
-    private fun validateFields(
-        firstName: String,
-        lastName: String,
-        countryCode: String,
-        phone: String,
-        email: String,
-        password: String,
-        confirmPassword: String
-    ): Boolean {
-        var valid = true
-
-        if (firstName.isBlank()) {
-            tilFirstName.error = "Ingresa tus nombres"
-            valid = false
-        }
-        if (lastName.isBlank()) {
-            tilLastName.error = "Ingresa tus apellidos"
-            valid = false
-        }
-        if (countryCode.isBlank()) {
-            tilCountryCode.error = "Selecciona código"
-            valid = false
-        }
-        if (phone.isBlank()) {
-            tilPhone.error = "Ingresa tu teléfono"
-            valid = false
-        } else if (!phone.matches(Regex("^\\d{7,15}$"))) {
-            tilPhone.error = "Solo dígitos (7 a 15)"
-            valid = false
-        }
-        if (email.isBlank()) {
-            tilEmail.error = "Ingresa tu correo"
-            valid = false
-        }
-        if (password.isBlank()) {
-            tilPassword.error = "Ingresa una contraseña"
-            valid = false
-        }
-        if (confirmPassword.isBlank()) {
-            tilConfirmPassword.error = "Confirma tu contraseña"
-            valid = false
-        }
-
-        return valid
-    }
-
-    private fun clearErrors() {
-        tilFirstName.error = null
-        tilLastName.error = null
-        tilCountryCode.error = null
-        tilPhone.error = null
-        tilEmail.error = null
-        tilPassword.error = null
-        tilConfirmPassword.error = null
     }
 
     override fun onPause() {
@@ -203,12 +183,8 @@ class RegisterActivity : AppCompatActivity() {
     private fun clearForm() {
         etFirstName.setText("")
         etLastName.setText("")
-        etPhone.setText("")
-        val countries = resources.getStringArray(R.array.country_codes)
-        actvCountryCode.setText(countries.firstOrNull().orEmpty(), false)
         etEmail.setText("")
         etPassword.setText("")
         etConfirmPassword.setText("")
-        clearErrors()
     }
 }

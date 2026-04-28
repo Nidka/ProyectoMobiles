@@ -64,6 +64,21 @@ class AuthManager(context: Context) {
 
     fun login(email: String, password: String, onResult: (AuthResult) -> Unit) {
         val cleanEmail = email.trim().lowercase()
+        val cleanPassword = password.trim()
+        
+        // Validate input
+        if (cleanEmail.isEmpty()) {
+            onResult(AuthResult(false, "Ingresa tu correo electrónico"))
+            return
+        }
+        if (cleanPassword.isEmpty()) {
+            onResult(AuthResult(false, "Ingresa tu contraseña"))
+            return
+        }
+        if (!EMAIL_REGEX.matches(cleanEmail)) {
+            onResult(AuthResult(false, "Ingresa un correo válido"))
+            return
+        }
         
         // Verificación de bloqueo local (opcional con Firebase, pero lo mantenemos si quieres)
         val lockoutKey = KEY_LOCKOUT_UNTIL_PREFIX + cleanEmail
@@ -74,7 +89,7 @@ class AuthManager(context: Context) {
             return
         }
 
-        auth.signInWithEmailAndPassword(cleanEmail, password)
+        auth.signInWithEmailAndPassword(cleanEmail, cleanPassword)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser

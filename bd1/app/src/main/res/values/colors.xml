@@ -3,21 +3,44 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="brand_primary">#D46A2A</color>
+    <!-- UPNGO Brand Colors -->
+    <color name="upn_yellow">#F5A623</color>
+    <color name="upn_yellow_dark">#E09B1D</color>
+    <color name="upn_yellow_text">#F5A623</color>
+    <color name="upn_orange">#FFB819</color>
+    <color name="upn_wordmark_dark">#FF000000</color>
+    <color name="upn_go_dark">#FF000000</color>
+
+    <!-- Theme-aware colors (light mode defaults) -->
+    <color name="bg_primary">#FFFFFFFF</color>
+    <color name="bg_input">#FFF0F0F0</color>
+    <color name="bg_input_stroke">#FFE0E0E0</color>
+    <color name="bg_tab_container">#FFF0F0F0</color>
+
+    <color name="text_heading">#FF000000</color>
+    <color name="text_body">#FF666666</color>
+    <color name="text_hint">#FF999999</color>
+    <color name="text_on_yellow">#FF000000</color>
+
+    <color name="divider_color">#FFE0E0E0</color>
+    <color name="icon_tint">#FF888888</color>
+
+    <!-- Keep old colors for other activities -->
+    <color name="brand_primary">#F5A623</color>
     <color name="brand_on_primary">#FFFFFF</color>
-    <color name="brand_secondary">#B65A24</color>
+    <color name="brand_secondary">#E09B1D</color>
     <color name="brand_on_secondary">#FFF8F2</color>
 
-    <color name="screen_background">#FCF3EC</color>
-    <color name="header_bg">#F8E2D2</color>
-    <color name="header_stroke">#EDC9AF</color>
+    <color name="screen_background">#FFFFFF</color>
+    <color name="header_bg">#FFF0F0F0</color>
+    <color name="header_stroke">#FFE0E0E0</color>
     <color name="card_surface">#FFFFFF</color>
-    <color name="card_stroke">#F3DCCB</color>
+    <color name="card_stroke">#FFE0E0E0</color>
 
-    <color name="text_primary">#2F1B10</color>
-    <color name="text_secondary">#7C5C4A</color>
-    <color name="price_highlight">#A45122</color>
+    <color name="text_primary">#FF000000</color>
+    <color name="text_secondary">#FF666666</color>
+    <color name="price_highlight">#F5A623</color>
 
-    <color name="button_tonal_bg">#FFE9DA</color>
-    <color name="button_tonal_text">#8D3D07</color>
+    <color name="button_tonal_bg">#FFFDE8C8</color>
+    <color name="button_tonal_text">#E09B1D</color>
 </resources>
