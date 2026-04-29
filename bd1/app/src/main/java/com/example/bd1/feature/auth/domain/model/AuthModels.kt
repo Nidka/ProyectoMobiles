@@ -10,6 +10,7 @@ data class RegisterRequest(
     val lastName: String,
     val email: String,
     val password: String,
+    val phone: String = "",
     val role: String = "estudiante"
 )
 

@@ -9,6 +9,7 @@ import com.example.bd1.feature.auth.domain.usecase.LogoutUseCase
 import com.example.bd1.feature.auth.domain.usecase.RegisterUseCase
 import com.example.bd1.feature.auth.domain.usecase.ResetPasswordUseCase
 import com.example.bd1.feature.auth.domain.usecase.UpdateProfileUseCase
+import com.example.bd1.feature.auth.domain.usecase.GetCurrentUserUseCase
 import com.example.bd1.feature.auth.ui.viewmodel.AuthViewModel
 import com.example.bd1.feature.products.data.datasource.ProductLocalDataSourceImpl
 import com.example.bd1.feature.products.data.repository.ProductRepositoryImpl
@@ -44,6 +45,7 @@ object AppContainer {
     private val loginUseCase by lazy { LoginUseCase(authRepository) }
     private val logoutUseCase by lazy { LogoutUseCase(authRepository) }
     private val resetPasswordUseCase by lazy { ResetPasswordUseCase(authRepository) }
+    private val getCurrentUserUseCase by lazy { GetCurrentUserUseCase(authRepository) }
     private val authUpdateProfileUseCase by lazy { UpdateProfileUseCase(authRepository) }
     
     val authViewModel by lazy {
@@ -52,6 +54,7 @@ object AppContainer {
             loginUseCase,
             logoutUseCase,
             resetPasswordUseCase,
+            getCurrentUserUseCase,
             authUpdateProfileUseCase
         )
     }

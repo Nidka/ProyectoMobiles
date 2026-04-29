@@ -10,7 +10,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.bd1.feature.products.ui.activity.MainActivity
 import com.example.bd1.R
 import com.example.bd1.SimpleTextWatcher
@@ -35,6 +37,7 @@ class LoginActivity : AppCompatActivity() {
 
         // Obtener ViewModel del contenedor de inyección de dependencias
         authViewModel = AppContainer.authViewModel
+        authViewModel.clearState()
 
         etEmail = findViewById(R.id.et_login_email)
         etPassword = findViewById(R.id.et_login_password)
@@ -81,30 +84,32 @@ class LoginActivity : AppCompatActivity() {
 
         // Observar cambios de estado del login
         lifecycleScope.launch {
-            authViewModel.authState.collectLatest { state ->
-                when {
-                    state.isLoading -> {
-                        btnLogin.isEnabled = false
-                        btnLogin.alpha = 0.5f
-                    }
-                    state.isSuccess -> {
-                        btnLogin.isEnabled = true
-                        btnLogin.alpha = 1f
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                authViewModel.authState.collectLatest { state ->
+                    when {
+                        state.isLoading -> {
+                            btnLogin.isEnabled = false
+                            btnLogin.alpha = 0.5f
+                        }
+                        state.isSuccess -> {
+                            btnLogin.isEnabled = true
+                            btnLogin.alpha = 1f
 
-                        val authenticatedUser = state.authResponse?.user
-                        if (authenticatedUser != null) {
-                            Toast.makeText(this@LoginActivity, state.authResponse?.message ?: "Bienvenido", Toast.LENGTH_SHORT).show()
-                            openHome()
-                        } else {
-                            Toast.makeText(this@LoginActivity, state.authResponse?.message ?: "Operación completada", Toast.LENGTH_SHORT).show()
+                            val authenticatedUser = state.authResponse?.user
+                            if (authenticatedUser != null) {
+                                Toast.makeText(this@LoginActivity, state.authResponse?.message ?: "Bienvenido", Toast.LENGTH_SHORT).show()
+                                openHome()
+                            } else {
+                                Toast.makeText(this@LoginActivity, state.authResponse?.message ?: "Operación completada", Toast.LENGTH_SHORT).show()
+                                authViewModel.clearState()
+                            }
+                        }
+                        state.errorMessage != null -> {
+                            btnLogin.isEnabled = true
+                            btnLogin.alpha = 1f
+                            Toast.makeText(this@LoginActivity, state.errorMessage, Toast.LENGTH_SHORT).show()
                             authViewModel.clearState()
                         }
-                    }
-                    state.errorMessage != null -> {
-                        btnLogin.isEnabled = true
-                        btnLogin.alpha = 1f
-                        Toast.makeText(this@LoginActivity, state.errorMessage, Toast.LENGTH_SHORT).show()
-                        authViewModel.clearState()
                     }
                 }
             }
@@ -127,6 +132,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         tvGoRegister.setOnClickListener {
+            authViewModel.clearState()
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 
@@ -141,6 +147,11 @@ class LoginActivity : AppCompatActivity() {
                     .putExtra(ResetPasswordActivity.EXTRA_EMAIL, email)
             )
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        authViewModel.clearState()
     }
 
     private fun renderLoginPreview(email: String) {

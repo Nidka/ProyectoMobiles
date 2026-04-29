@@ -1,6 +1,7 @@
 package com.example.bd1.feature.auth.domain.usecase
 
 import com.example.bd1.feature.auth.domain.model.AuthResponse
+import com.example.bd1.feature.auth.domain.model.User
 import com.example.bd1.feature.auth.domain.repository.AuthRepository
 
 class LogoutUseCase(private val authRepository: AuthRepository) {
@@ -23,5 +24,11 @@ class UpdateProfileUseCase(private val authRepository: AuthRepository) {
         photoUri: String?
     ): AuthResponse {
         return authRepository.updateProfile(firstName, lastName, phone, photoUri)
+    }
+}
+
+class GetCurrentUserUseCase(private val authRepository: AuthRepository) {
+    suspend operator fun invoke(): User? {
+        return authRepository.getCurrentUser()
     }
 }

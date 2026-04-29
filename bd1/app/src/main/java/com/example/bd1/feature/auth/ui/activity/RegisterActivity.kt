@@ -1,6 +1,5 @@
 package com.example.bd1.feature.auth.ui.activity
 
-import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.animation.AnimationUtils
@@ -11,8 +10,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import com.example.bd1.feature.products.ui.activity.MainActivity
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.bd1.R
 import com.example.bd1.di.AppContainer
 import com.example.bd1.feature.auth.ui.viewmodel.AuthViewModel
@@ -24,6 +24,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var authViewModel: AuthViewModel
     private lateinit var etFirstName: EditText
     private lateinit var etLastName: EditText
+    private lateinit var etPhone: EditText
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
     private lateinit var etConfirmPassword: EditText
@@ -36,6 +37,7 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(R.layout.activity_register)
 
         authViewModel = AppContainer.authViewModel
+        authViewModel.clearState()
 
         // Back button
         val ivBack: ImageView = findViewById(R.id.iv_back)
@@ -83,6 +85,7 @@ class RegisterActivity : AppCompatActivity() {
         // Input fields
         etFirstName = findViewById(R.id.et_register_first_name)
         etLastName = findViewById(R.id.et_register_last_name)
+        etPhone = findViewById(R.id.et_register_phone)
         etEmail = findViewById(R.id.et_register_email)
         etPassword = findViewById(R.id.et_register_password)
         etConfirmPassword = findViewById(R.id.et_register_password_confirm)
@@ -98,28 +101,32 @@ class RegisterActivity : AppCompatActivity() {
 
         etFirstName.startAnimation(slideUp1)
         etLastName.startAnimation(slideUp2)
-        etEmail.startAnimation(slideUp3)
-        etPassword.startAnimation(slideUp4)
-        etConfirmPassword.startAnimation(slideUp5)
-        btnRegister.startAnimation(slideUp6)
+        etPhone.startAnimation(slideUp3)
+        etEmail.startAnimation(slideUp4)
+        etPassword.startAnimation(slideUp5)
+        etConfirmPassword.startAnimation(slideUp6)
 
         // Observar cambios de estado del registro
         lifecycleScope.launch {
-            authViewModel.authState.collectLatest { state ->
-                when {
-                    state.isLoading -> {
-                        btnRegister.isEnabled = false
-                        btnRegister.alpha = 0.5f
-                    }
-                    state.isSuccess -> {
-                        Toast.makeText(this@RegisterActivity, state.authResponse?.message ?: "Registro exitoso", Toast.LENGTH_SHORT).show()
-                        openHome()
-                    }
-                    state.errorMessage != null -> {
-                        btnRegister.isEnabled = true
-                        btnRegister.alpha = 1f
-                        Toast.makeText(this@RegisterActivity, state.errorMessage, Toast.LENGTH_SHORT).show()
-                        authViewModel.clearState()
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                authViewModel.authState.collectLatest { state ->
+                    when {
+                        state.isLoading -> {
+                            btnRegister.isEnabled = false
+                            btnRegister.alpha = 0.5f
+                        }
+                        state.isSuccess -> {
+                            Toast.makeText(this@RegisterActivity, state.authResponse?.message ?: "Registro exitoso", Toast.LENGTH_SHORT).show()
+                            // No ir a home, sino volver a login para verificar correo
+                            authViewModel.clearState()
+                            finish()
+                        }
+                        state.errorMessage != null -> {
+                            btnRegister.isEnabled = true
+                            btnRegister.alpha = 1f
+                            Toast.makeText(this@RegisterActivity, state.errorMessage, Toast.LENGTH_SHORT).show()
+                            authViewModel.clearState()
+                        }
                     }
                 }
             }
@@ -128,6 +135,7 @@ class RegisterActivity : AppCompatActivity() {
         btnRegister.setOnClickListener {
             val firstName = etFirstName.text.toString().trim()
             val lastName = etLastName.text.toString().trim()
+            val phone = etPhone.text.toString().trim()
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString()
             val confirmPassword = etConfirmPassword.text.toString()
@@ -141,6 +149,10 @@ class RegisterActivity : AppCompatActivity() {
             }
             if (lastName.isBlank()) {
                 etLastName.startAnimation(AnimationUtils.loadAnimation(this@RegisterActivity, R.anim.shake))
+                isValid = false
+            }
+            if (phone.isBlank()) {
+                etPhone.startAnimation(AnimationUtils.loadAnimation(this@RegisterActivity, R.anim.shake))
                 isValid = false
             }
             if (email.isBlank()) {
@@ -164,12 +176,7 @@ class RegisterActivity : AppCompatActivity() {
 
             if (!isValid) return@setOnClickListener
 
-            authViewModel.register(firstName, lastName, email, password, selectedRole)
+            authViewModel.register(firstName, lastName, email, password, phone, selectedRole)
         }
-    }
-
-    private fun openHome() {
-        startActivity(Intent(this, MainActivity::class.java))
-        finish()
     }
 }

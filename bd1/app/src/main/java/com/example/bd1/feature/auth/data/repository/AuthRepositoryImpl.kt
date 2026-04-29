@@ -48,13 +48,14 @@ class AuthRepositoryImpl(
                 firstName = request.firstName,
                 lastName = request.lastName,
                 email = request.email.lowercase(),
-                phone = "",
+                phone = request.phone,
                 photoUri = "",
-                role = request.role
+                role = request.role,
+                isEmailVerified = false
             )
             localDataSource.saveUser(userDto)
-            localDataSource.setCurrentUserEmail(userDto.email)
-            AuthResponse(true, "Registro exitoso", userDto.toModel())
+            // No establecer como usuario actual hasta verificar correo
+            AuthResponse(true, "Registro exitoso. Por favor verifica tu correo para continuar.", userDto.toModel())
         } catch (e: Exception) {
             AuthResponse(false, e.message ?: "Error en el registro")
         }
@@ -78,6 +79,12 @@ class AuthRepositoryImpl(
 
             val firebaseUser = firebaseAuth.currentUser
             if (firebaseUser != null) {
+                // Verificar si el correo está verificado
+                firebaseUser.reload().await()
+                if (!firebaseUser.isEmailVerified) {
+                    return AuthResponse(false, "Por favor verifica tu correo antes de continuar. Revisa tu bandeja de entrada.")
+                }
+
                 val userEmail = firebaseUser.email?.lowercase() ?: ""
                 var userDto = localDataSource.getUserByEmail(userEmail)
                 
@@ -90,9 +97,15 @@ class AuthRepositoryImpl(
                         email = userEmail,
                         phone = "",
                         photoUri = "",
-                        role = "estudiante"
+                        role = "estudiante",
+                        isEmailVerified = true
                     )
                     localDataSource.saveUser(userDto)
+                } else {
+                    // Actualizar estado de verificación
+                    val updatedUserDto = userDto.copy(isEmailVerified = true)
+                    localDataSource.saveUser(updatedUserDto)
+                    userDto = updatedUserDto
                 }
                 
                 localDataSource.setCurrentUserEmail(userEmail)
@@ -103,9 +116,11 @@ class AuthRepositoryImpl(
         } catch (e: Exception) {
             // Si falla en Firebase, intenta login local (para testing offline)
             val localUser = localDataSource.getUserByEmail(request.email.lowercase())
-            return if (localUser != null) {
+            return if (localUser != null && localUser.isEmailVerified) {
                 localDataSource.setCurrentUserEmail(localUser.email)
                 AuthResponse(true, "Bienvenido (modo offline)", localUser.toModel())
+            } else if (localUser != null) {
+                AuthResponse(false, "Por favor verifica tu correo antes de continuar.")
             } else {
                 AuthResponse(false, "Credenciales incorrectas")
             }

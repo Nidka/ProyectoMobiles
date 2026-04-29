@@ -9,6 +9,7 @@ import com.example.bd1.feature.auth.domain.usecase.LoginUseCase
 import com.example.bd1.feature.auth.domain.usecase.LogoutUseCase
 import com.example.bd1.feature.auth.domain.usecase.RegisterUseCase
 import com.example.bd1.feature.auth.domain.usecase.ResetPasswordUseCase
+import com.example.bd1.feature.auth.domain.usecase.GetCurrentUserUseCase
 import com.example.bd1.feature.auth.domain.usecase.UpdateProfileUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,16 +27,17 @@ class AuthViewModel(
     private val loginUseCase: LoginUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val resetPasswordUseCase: ResetPasswordUseCase,
+    private val getCurrentUserUseCase: GetCurrentUserUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow(AuthUiState())
     val authState = _authState.asStateFlow()
 
-    fun register(firstName: String, lastName: String, email: String, password: String, role: String = "estudiante") {
+    fun register(firstName: String, lastName: String, email: String, password: String, phone: String, role: String = "estudiante") {
         viewModelScope.launch {
             _authState.value = AuthUiState(isLoading = true)
-            val request = RegisterRequest(firstName, lastName, email, password, role)
+            val request = RegisterRequest(firstName, lastName, email, password, phone, role)
             val result = registerUseCase(request)
             _authState.value = if (result.success) {
                 AuthUiState(isSuccess = true, authResponse = result)
@@ -90,6 +92,26 @@ class AuthViewModel(
                 AuthUiState(isSuccess = true, authResponse = result)
             } else {
                 AuthUiState(errorMessage = result.message)
+            }
+        }
+    }
+
+    fun refreshCurrentUser() {
+        viewModelScope.launch {
+            val user = getCurrentUserUseCase()
+            _authState.value = if (user != null) {
+                _authState.value.copy(
+                    isLoading = false,
+                    isSuccess = false,
+                    errorMessage = null,
+                    authResponse = AuthResponse(success = true, message = "", user = user)
+                )
+            } else {
+                _authState.value.copy(
+                    isLoading = false,
+                    isSuccess = false,
+                    authResponse = null
+                )
             }
         }
     }

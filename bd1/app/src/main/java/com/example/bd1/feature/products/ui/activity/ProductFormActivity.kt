@@ -1,6 +1,7 @@
 package com.example.bd1.feature.products.ui.activity
 
 import android.os.Bundle
+import android.util.Log
 import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.EditText
@@ -9,7 +10,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.bd1.AvatarImageLoader
 import com.example.bd1.ImageStorageManager
 import com.example.bd1.R
@@ -57,7 +60,7 @@ class ProductFormActivity : AppCompatActivity() {
         productsViewModel = AppContainer.productsViewModel
         imageStorageManager = ImageStorageManager(this)
 
-        etNombre = findViewById(R.id.et_form_codigo)
+        etNombre = findViewById(R.id.et_form_nombre)
         etDescripcion = findViewById(R.id.et_form_descripcion)
         etPrecio = findViewById(R.id.et_form_precio)
         etImageUri = findViewById(R.id.et_form_image_uri)
@@ -88,25 +91,39 @@ class ProductFormActivity : AppCompatActivity() {
 
         // Observar cambios de estado de productos
         lifecycleScope.launch {
-            productsViewModel.productState.collectLatest { state ->
-                when {
-                    state.isLoading -> {
-                        btnGuardar.isEnabled = false
-                        btnGuardar.alpha = 0.5f
-                    }
-                    state.isSuccess -> {
-                        Toast.makeText(
-                            this@ProductFormActivity,
-                            if (productId != null) "Producto actualizado" else "Producto creado",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        finish()
-                    }
-                    state.errorMessage != null -> {
-                        btnGuardar.isEnabled = true
-                        btnGuardar.alpha = 1f
-                        Toast.makeText(this@ProductFormActivity, state.errorMessage, Toast.LENGTH_SHORT).show()
-                        productsViewModel.clearState()
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                productsViewModel.productState.collectLatest { state ->
+                    Log.d("ProductForm", "Estado: loading=${state.isLoading}, success=${state.isSuccess}, error=${state.errorMessage}")
+                    when {
+                        state.isLoading -> {
+                            Log.d("ProductForm", "Loading...")
+                            btnGuardar.isEnabled = false
+                            btnGuardar.alpha = 0.5f
+                        }
+                        state.isSuccess -> {
+                            Log.d("ProductForm", "Success! Cerrando...")
+                            btnGuardar.isEnabled = true
+                            btnGuardar.alpha = 1f
+                            Toast.makeText(
+                                this@ProductFormActivity,
+                                if (productId != null) "Producto actualizado" else "Producto creado",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            productsViewModel.clearState()
+                            finish()
+                        }
+                        state.errorMessage != null -> {
+                            Log.d("ProductForm", "Error: ${state.errorMessage}")
+                            btnGuardar.isEnabled = true
+                            btnGuardar.alpha = 1f
+                            Toast.makeText(this@ProductFormActivity, state.errorMessage, Toast.LENGTH_SHORT).show()
+                            productsViewModel.clearState()
+                        }
+                        else -> {
+                            Log.d("ProductForm", "Estado neutral")
+                            btnGuardar.isEnabled = true
+                            btnGuardar.alpha = 1f
+                        }
                     }
                 }
             }

@@ -43,7 +43,8 @@ class AuthLocalDataSourceImpl(context: Context) : AuthLocalDataSource {
                         email = json.optString("email", ""),
                         phone = json.optString("phone", ""),
                         photoUri = json.optString("photoUri", ""),
-                        role = json.optString("role", "estudiante")
+                        role = json.optString("role", "estudiante"),
+                        isEmailVerified = json.optBoolean("isEmailVerified", false)
                     ))
                 }
             }
@@ -76,6 +77,7 @@ class AuthLocalDataSourceImpl(context: Context) : AuthLocalDataSource {
                 put("phone", user.phone)
                 put("photoUri", user.photoUri)
                 put("role", user.role)
+                put("isEmailVerified", user.isEmailVerified)
             })
         }
         prefs.edit().putString(KEY_USERS_JSON, jsonArray.toString()).apply()

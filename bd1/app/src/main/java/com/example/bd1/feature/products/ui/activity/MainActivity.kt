@@ -101,7 +101,10 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             authViewModel.authState.collectLatest { state ->
-                state.authResponse?.user?.let { updateWelcome(it) }
+                state.authResponse?.user?.let {
+                    updateWelcome(it)
+                    renderHomeAvatar(it)
+                }
             }
         }
 
@@ -134,12 +137,14 @@ class MainActivity : AppCompatActivity() {
             openProductForm(null)
         }
 
+        authViewModel.refreshCurrentUser()
         refreshHomeHeader()
         productsViewModel.loadAllProducts()
     }
 
     override fun onStart() {
         super.onStart()
+        authViewModel.refreshCurrentUser()
         refreshHomeHeader()
     }
 

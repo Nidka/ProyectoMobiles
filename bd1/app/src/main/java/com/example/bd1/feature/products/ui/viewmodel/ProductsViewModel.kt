@@ -1,5 +1,6 @@
 package com.example.bd1.feature.products.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bd1.feature.products.domain.model.Product
@@ -47,35 +48,40 @@ class ProductsViewModel(
     }
 
     fun createProduct(product: Product) {
+        Log.d("ProductsViewModel", "createProduct iniciado")
         viewModelScope.launch {
-            _productState.value = _productState.value.copy(isLoading = true)
+            _productState.value = _productState.value.copy(isLoading = true, isSuccess = false, errorMessage = null)
             try {
+                Log.d("ProductsViewModel", "Llamando createProductUseCase...")
                 val success = createProductUseCase(product)
+                Log.d("ProductsViewModel", "createProductUseCase retornó: $success")
                 if (success) {
                     loadAllProducts()
-                    _productState.value = _productState.value.copy(isSuccess = true)
+                    Log.d("ProductsViewModel", "Emitiendo isSuccess = true")
+                    _productState.value = ProductUiState(isLoading = false, isSuccess = true, products = _productState.value.products)
                 } else {
-                    _productState.value = _productState.value.copy(errorMessage = "Error al crear producto")
+                    _productState.value = _productState.value.copy(isLoading = false, errorMessage = "Error al crear producto", isSuccess = false)
                 }
             } catch (e: Exception) {
-                _productState.value = _productState.value.copy(errorMessage = e.message ?: "Error")
+                Log.e("ProductsViewModel", "Exception en createProduct", e)
+                _productState.value = _productState.value.copy(isLoading = false, errorMessage = e.message ?: "Error", isSuccess = false)
             }
         }
     }
 
     fun updateProduct(product: Product) {
         viewModelScope.launch {
-            _productState.value = _productState.value.copy(isLoading = true)
+            _productState.value = _productState.value.copy(isLoading = true, isSuccess = false, errorMessage = null)
             try {
                 val success = updateProductUseCase(product)
                 if (success) {
                     loadAllProducts()
-                    _productState.value = _productState.value.copy(isSuccess = true)
+                    _productState.value = _productState.value.copy(isLoading = false, isSuccess = true, errorMessage = null)
                 } else {
-                    _productState.value = _productState.value.copy(errorMessage = "Error al actualizar producto")
+                    _productState.value = _productState.value.copy(isLoading = false, errorMessage = "Error al actualizar producto", isSuccess = false)
                 }
             } catch (e: Exception) {
-                _productState.value = _productState.value.copy(errorMessage = e.message ?: "Error")
+                _productState.value = _productState.value.copy(isLoading = false, errorMessage = e.message ?: "Error", isSuccess = false)
             }
         }
     }

@@ -7,5 +7,6 @@ data class UserDto(
     val email: String,
     val phone: String = "",
     val photoUri: String = "",
-    val role: String = "estudiante"
+    val role: String = "estudiante",
+    val isEmailVerified: Boolean = false
 )

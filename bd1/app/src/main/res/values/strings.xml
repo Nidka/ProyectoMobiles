@@ -41,6 +41,7 @@
 
     <!-- Existing strings for other activities -->
     <string name="txt_codigo">Código del producto (sugerido automático)</string>
+    <string name="txt_nombre">Nombre del producto</string>
     <string name="txt_descripcion">Descripción del producto</string>
     <string name="txt_precio">Precio del producto</string>
     <string name="txt_imagen">Imagen seleccionada</string>
@@ -63,6 +64,7 @@
     <string name="label_name">Nombre completo</string>
     <string name="label_country_code">Código</string>
     <string name="label_phone">Teléfono</string>
+    <string name="hint_phone">+51 980 123456</string>
     <string name="go_register">¿No tienes cuenta? Regístrate</string>
     <string name="go_login">¿Ya tienes cuenta? Inicia sesión</string>
     <string name="home_welcome">Bienvenida, %1$s</string>
