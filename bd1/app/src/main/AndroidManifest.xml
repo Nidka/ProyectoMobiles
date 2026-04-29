@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".ProyectoMovilesApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -19,7 +20,22 @@
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
         <activity
-            android:name=".ResetPasswordActivity"
+            android:name=".feature.auth.ui.activity.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".feature.products.ui.activity.MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".feature.auth.ui.activity.RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".feature.products.ui.activity.ProductFormActivity"
+            android:exported="false" />
+        <activity
+            android:name=".feature.profile.ui.activity.ProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".feature.auth.ui.activity.ResetPasswordActivity"
             android:exported="false" />
         <activity
             android:name=".SplashActivity"
@@ -31,21 +47,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ProfileActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ProductFormActivity"
-            android:exported="false" />
-        <activity
-            android:name=".RegisterActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
-        <activity
-            android:name=".LoginActivity"
-            android:exported="false" />
     </application>
 
 </manifest>

@@ -7,6 +7,7 @@ import android.os.Looper
 import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import com.example.bd1.feature.auth.ui.activity.LoginActivity
 
 class SplashActivity : AppCompatActivity() {
 
