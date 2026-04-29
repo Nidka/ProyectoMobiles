@@ -1,6 +1,7 @@
 package com.example.bd1.feature.auth.ui.activity
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import android.view.animation.AnimationUtils
@@ -134,6 +135,16 @@ class LoginActivity : AppCompatActivity() {
         tvGoRegister.setOnClickListener {
             authViewModel.clearState()
             startActivity(Intent(this, RegisterActivity::class.java))
+        }
+
+        findViewById<ImageView>(R.id.btn_social_facebook).setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/UPN/")))
+        }
+        findViewById<ImageView>(R.id.btn_social_instagram).setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.instagram.com/upn/")))
+        }
+        findViewById<ImageView>(R.id.btn_social_youtube).setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/user/UPNTVcanaloficial?themeRefresh=1")))
         }
 
         tvForgotPassword.setOnClickListener {
