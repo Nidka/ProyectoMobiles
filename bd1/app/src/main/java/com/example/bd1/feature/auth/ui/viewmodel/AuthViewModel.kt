@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 data class AuthUiState(
@@ -125,7 +126,7 @@ class AuthViewModel(
     }
 
     override fun onCleared() {
-        authScope.coroutineContext.cancel()
+        authScope.cancel()
         super.onCleared()
     }
 }

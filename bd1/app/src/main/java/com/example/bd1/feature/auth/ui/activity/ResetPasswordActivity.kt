@@ -1,7 +1,9 @@
 package com.example.bd1.feature.auth.ui.activity
 
 import android.os.Bundle
+import android.view.View
 import android.view.animation.AnimationUtils
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -12,21 +14,25 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.bd1.R
 import com.example.bd1.di.AppContainer
 import com.example.bd1.feature.auth.ui.viewmodel.AuthViewModel
-import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class ResetPasswordActivity : AppCompatActivity() {
 
     private lateinit var authViewModel: AuthViewModel
-    private lateinit var etEmail: TextInputEditText
+    private lateinit var etEmail: EditText
     private lateinit var btnSendReset: TextView
-    private lateinit var layoutRoot: android.view.View
+    private lateinit var layoutRoot: View
     private lateinit var ivLogo: ImageView
     private lateinit var tvTitle: TextView
     private lateinit var tvSubtitle: TextView
     private lateinit var tvHint: TextView
     private lateinit var ivBack: ImageView
+    private lateinit var layoutResetInput: View
+    private lateinit var layoutResetConfirm: View
+    private lateinit var tvConfirmEmail: TextView
+    private lateinit var btnGoLogin: TextView
+    private lateinit var ivConfirmBack: ImageView
     private var resetRequested = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +41,7 @@ class ResetPasswordActivity : AppCompatActivity() {
 
         authViewModel = AppContainer.authViewModel
         authViewModel.clearState()
-        
+
         etEmail = findViewById(R.id.et_reset_email)
         btnSendReset = findViewById(R.id.btn_send_reset)
         layoutRoot = findViewById(R.id.layout_reset_root)
@@ -44,6 +50,11 @@ class ResetPasswordActivity : AppCompatActivity() {
         tvSubtitle = findViewById(R.id.tv_reset_subtitle)
         tvHint = findViewById(R.id.tv_reset_hint)
         ivBack = findViewById(R.id.iv_reset_back)
+        layoutResetInput = findViewById(R.id.layout_reset_input)
+        layoutResetConfirm = findViewById(R.id.layout_reset_confirm)
+        tvConfirmEmail = findViewById(R.id.tv_confirm_email)
+        btnGoLogin = findViewById(R.id.btn_go_login)
+        ivConfirmBack = findViewById(R.id.iv_confirm_back)
 
         etEmail.setText(intent.getStringExtra(EXTRA_EMAIL).orEmpty())
         if (etEmail.text?.isNotBlank() == true) {
@@ -52,11 +63,10 @@ class ResetPasswordActivity : AppCompatActivity() {
 
         playIntroAnimations()
 
-        ivBack.setOnClickListener {
-            onBackPressed()
-        }
+        ivBack.setOnClickListener { onBackPressed() }
+        ivConfirmBack.setOnClickListener { finish() }
+        btnGoLogin.setOnClickListener { finish() }
 
-        // Observar cambios de estado de autenticación
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 authViewModel.authState.collectLatest { state ->
@@ -67,14 +77,9 @@ class ResetPasswordActivity : AppCompatActivity() {
                             btnSendReset.alpha = 0.5f
                         }
                         state.isSuccess && resetRequested -> {
-                            btnSendReset.isEnabled = true
-                            btnSendReset.text = "Enviar enlace"
-                            btnSendReset.alpha = 1f
                             resetRequested = false
-                            Toast.makeText(this@ResetPasswordActivity, "Enlace de recuperación enviado", Toast.LENGTH_LONG).show()
                             authViewModel.clearState()
-                            finish()
-                            overridePendingTransition(R.anim.fade_scale_in, R.anim.reset_screen_exit)
+                            showConfirmation(etEmail.text.toString().trim())
                         }
                         state.errorMessage != null && resetRequested -> {
                             btnSendReset.isEnabled = true
@@ -95,10 +100,28 @@ class ResetPasswordActivity : AppCompatActivity() {
                 etEmail.startAnimation(AnimationUtils.loadAnimation(this@ResetPasswordActivity, R.anim.shake))
                 return@setOnClickListener
             }
-
             resetRequested = true
             authViewModel.resetPassword(email)
         }
+    }
+
+    private fun showConfirmation(email: String) {
+        tvConfirmEmail.text = email
+        layoutResetInput.animate()
+            .alpha(0f)
+            .setDuration(200)
+            .withEndAction {
+                layoutResetInput.visibility = View.GONE
+                layoutResetConfirm.alpha = 0f
+                layoutResetConfirm.translationY = 30f
+                layoutResetConfirm.visibility = View.VISIBLE
+                layoutResetConfirm.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setDuration(300)
+                    .start()
+            }
+            .start()
     }
 
     private fun playIntroAnimations() {
