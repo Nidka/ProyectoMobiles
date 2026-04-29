@@ -6,7 +6,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.bd1.R
 import com.example.bd1.di.AppContainer
 import com.example.bd1.feature.auth.ui.viewmodel.AuthViewModel
@@ -25,12 +27,14 @@ class ResetPasswordActivity : AppCompatActivity() {
     private lateinit var tvSubtitle: TextView
     private lateinit var tvHint: TextView
     private lateinit var ivBack: ImageView
+    private var resetRequested = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reset_password)
 
         authViewModel = AppContainer.authViewModel
+        authViewModel.clearState()
         
         etEmail = findViewById(R.id.et_reset_email)
         btnSendReset = findViewById(R.id.btn_send_reset)
@@ -54,29 +58,32 @@ class ResetPasswordActivity : AppCompatActivity() {
 
         // Observar cambios de estado de autenticación
         lifecycleScope.launch {
-            authViewModel.authState.collectLatest { state ->
-                when {
-                    state.isLoading -> {
-                        btnSendReset.isEnabled = false
-                        btnSendReset.text = "Enviando..."
-                        btnSendReset.alpha = 0.5f
-                    }
-                    state.isSuccess -> {
-                        btnSendReset.isEnabled = true
-                        btnSendReset.text = "Enviar enlace"
-                        btnSendReset.alpha = 1f
-                        Toast.makeText(this@ResetPasswordActivity, "Enlace de recuperación enviado", Toast.LENGTH_LONG).show()
-                        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                authViewModel.authState.collectLatest { state ->
+                    when {
+                        state.isLoading -> {
+                            btnSendReset.isEnabled = false
+                            btnSendReset.text = "Enviando..."
+                            btnSendReset.alpha = 0.5f
+                        }
+                        state.isSuccess && resetRequested -> {
+                            btnSendReset.isEnabled = true
+                            btnSendReset.text = "Enviar enlace"
+                            btnSendReset.alpha = 1f
+                            resetRequested = false
+                            Toast.makeText(this@ResetPasswordActivity, "Enlace de recuperación enviado", Toast.LENGTH_LONG).show()
+                            authViewModel.clearState()
                             finish()
                             overridePendingTransition(R.anim.fade_scale_in, R.anim.reset_screen_exit)
-                        }, 900)
-                    }
-                    state.errorMessage != null -> {
-                        btnSendReset.isEnabled = true
-                        btnSendReset.text = "Enviar enlace"
-                        btnSendReset.alpha = 1f
-                        Toast.makeText(this@ResetPasswordActivity, state.errorMessage, Toast.LENGTH_LONG).show()
-                        authViewModel.clearState()
+                        }
+                        state.errorMessage != null && resetRequested -> {
+                            btnSendReset.isEnabled = true
+                            btnSendReset.text = "Enviar enlace"
+                            btnSendReset.alpha = 1f
+                            resetRequested = false
+                            Toast.makeText(this@ResetPasswordActivity, state.errorMessage, Toast.LENGTH_LONG).show()
+                            authViewModel.clearState()
+                        }
                     }
                 }
             }
@@ -89,6 +96,7 @@ class ResetPasswordActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            resetRequested = true
             authViewModel.resetPassword(email)
         }
     }

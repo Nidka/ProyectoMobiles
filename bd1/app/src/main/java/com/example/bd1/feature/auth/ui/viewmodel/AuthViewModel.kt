@@ -1,7 +1,6 @@
 package com.example.bd1.feature.auth.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.bd1.feature.auth.domain.model.AuthResponse
 import com.example.bd1.feature.auth.domain.model.LoginRequest
 import com.example.bd1.feature.auth.domain.model.RegisterRequest
@@ -11,8 +10,12 @@ import com.example.bd1.feature.auth.domain.usecase.RegisterUseCase
 import com.example.bd1.feature.auth.domain.usecase.ResetPasswordUseCase
 import com.example.bd1.feature.auth.domain.usecase.GetCurrentUserUseCase
 import com.example.bd1.feature.auth.domain.usecase.UpdateProfileUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 data class AuthUiState(
@@ -31,11 +34,12 @@ class AuthViewModel(
     private val updateProfileUseCase: UpdateProfileUseCase
 ) : ViewModel() {
 
+    private val authScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val _authState = MutableStateFlow(AuthUiState())
     val authState = _authState.asStateFlow()
 
     fun register(firstName: String, lastName: String, email: String, password: String, phone: String, role: String = "estudiante") {
-        viewModelScope.launch {
+        authScope.launch {
             _authState.value = AuthUiState(isLoading = true)
             val request = RegisterRequest(firstName, lastName, email, password, phone, role)
             val result = registerUseCase(request)
@@ -48,7 +52,7 @@ class AuthViewModel(
     }
 
     fun login(email: String, password: String) {
-        viewModelScope.launch {
+        authScope.launch {
             _authState.value = AuthUiState(isLoading = true)
             val request = LoginRequest(email, password)
             val result = loginUseCase(request)
@@ -61,7 +65,7 @@ class AuthViewModel(
     }
 
     fun logout() {
-        viewModelScope.launch {
+        authScope.launch {
             _authState.value = AuthUiState(isLoading = true)
             val result = logoutUseCase()
             _authState.value = if (result.success) {
@@ -73,7 +77,7 @@ class AuthViewModel(
     }
 
     fun resetPassword(email: String) {
-        viewModelScope.launch {
+        authScope.launch {
             _authState.value = AuthUiState(isLoading = true)
             val result = resetPasswordUseCase(email)
             _authState.value = if (result.success) {
@@ -85,7 +89,7 @@ class AuthViewModel(
     }
 
     fun updateProfile(firstName: String, lastName: String, phone: String, photoUri: String? = null) {
-        viewModelScope.launch {
+        authScope.launch {
             _authState.value = AuthUiState(isLoading = true)
             val result = updateProfileUseCase(firstName, lastName, phone, photoUri)
             _authState.value = if (result.success) {
@@ -97,7 +101,7 @@ class AuthViewModel(
     }
 
     fun refreshCurrentUser() {
-        viewModelScope.launch {
+        authScope.launch {
             val user = getCurrentUserUseCase()
             _authState.value = if (user != null) {
                 _authState.value.copy(
@@ -118,5 +122,10 @@ class AuthViewModel(
 
     fun clearState() {
         _authState.value = AuthUiState()
+    }
+
+    override fun onCleared() {
+        authScope.coroutineContext.cancel()
+        super.onCleared()
     }
 }
